@@ -1,0 +1,198 @@
+<html>
+	<head>
+		<title>Sistema solare</title>
+		<style>
+		
+		body {
+			font-family: Monospace;
+			background-color: #f0f0f0;
+			margin: 0px;
+			overflow: hidden;
+		}
+		
+		canvas { 
+			width: 100%; 
+			height: 100%;
+		}
+	
+	</style>
+		<script src="lib/three.min.js"></script>
+		<script src="lib/stats.min.js"></script>
+		<script src="lib/Coordinates.js"></script>
+		<script src="lib/OrbitControls.js"></script>
+	</head>
+	<body>
+		
+		<script>
+			var scene = new THREE.Scene();
+			var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+
+			var renderer = new THREE.WebGLRenderer();
+			renderer.setSize( window.innerWidth, window.innerHeight );
+			renderer.setClearColor( 0xf0f0f0 );
+			document.body.appendChild( renderer.domElement );
+			
+            
+            /*
+            // Cielo stellato
+            var geometry  = new THREE.SphereGeometry(1000, 50, 50);
+            
+            var material = new THREE.MeshBasicMaterial();
+            material.map = THREE.ImageUtils.loadTexture('images/galaxy_starfield.png');
+            material.side = THREE.BackSide;
+            var mesh = new THREE.Mesh(geometry, material);
+
+            scene.add (mesh);
+            */
+            
+            
+            // Sole
+            var geoSole = new THREE.SphereGeometry(4.5, 20, 20);
+            var matSole = new THREE.MeshBasicMaterial( { wireframe: true,
+                                                        color: 0xff0000 } );
+            var sole = new THREE.Mesh(geoSole, matSole);
+            
+            // Terra
+            var geoTerra = new THREE.SphereGeometry(2.0, 20, 20);
+            var matTerra = new THREE.MeshBasicMaterial( { wireframe: true,
+                                                        color: 0x00ff00 } );
+            var terra = new THREE.Mesh(geoTerra, matTerra);
+            
+            // Luna
+            var geoLuna = new THREE.SphereGeometry(1.0, 20, 20);
+            var matLuna = new THREE.MeshBasicMaterial( { wireframe: true,
+                                                        color: 0xaaaa00 } );
+            var luna = new THREE.Mesh(geoLuna, matLuna);
+            
+            // Sistema di rotazione della Luna attorno alla Terra
+            var rotazioneLuna = new THREE.Object3D();
+            rotazioneLuna.add(luna);
+            
+            // Sistema Terra - Luna
+            var sistTerraLuna = new THREE.Object3D();
+            sistTerraLuna.add(terra);
+            sistTerraLuna.add(rotazioneLuna);
+            
+            // Rotazione sistema Terra - Luna
+            var rotazioneTerraLuna = new THREE.Object3D();
+            rotazioneTerraLuna.add(sistTerraLuna);
+            
+            
+            // Aggiunte a scena
+            scene.add(sole);
+            scene.add(rotazioneTerraLuna);
+            
+            
+            // Posizionamenti
+            luna.position.x = 4;
+            sistTerraLuna.position.x = 20;
+            
+            // Angolazione asse terrestre
+            var theta = 45 * Math.PI / 180.0;
+            var axis = new THREE.Vector3(Math.sin(theta),Math.cos(theta),0); // theta = 25 
+            terra.matrixAutoUpdate = false;
+            
+            // Variabili tempo
+            var alpha = (1/365000) * Math.PI;
+            
+            
+            // visualizzare statistiche frame //
+            stats = new Stats();
+			stats.domElement.style.position = 'absolute';
+			stats.domElement.style.top = '0px';
+			document.body.appendChild( stats.domElement );
+			
+            // regolazione camera //
+			camera.position.z = 30;
+			camera.lookAt( new THREE.Vector3(0,0,0));
+			Coordinates.drawAllAxes();
+			
+			controls = new THREE.OrbitControls( camera );
+			controls.addEventListener( 'change', render );
+			
+            
+            
+			function animate() {
+
+				requestAnimationFrame( animate );
+				controls.update();
+			}
+			
+			function render() {
+				
+				stats.update();
+                requestAnimationFrame( render );
+                // rotazioni dinamiche
+                luna.rotation.y = alpha * 365*2/5 * Date.now();
+                rotazioneLuna.rotation.y = alpha * 365*2/12 * Date.now();
+                rotazioneTerraLuna.rotation.y = 2 * alpha * Date.now();
+                
+				renderer.render(scene, camera);
+			}
+			render();
+            animate();
+            
+            
+            // Eventi
+            THREE.EventDispatcher.call( sole );
+            sole.addEventListener('start', function(event) {alert("GOT THE EVENT");});
+            sole.dispatchEvent({type:'start'});
+
+            
+		</script>
+	</body>
+</html>
+
+
+
+
+/*
+
+    function onWindowResize() {
+
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+
+        renderer.setSize( window.innerWidth, window.innerHeight );
+
+    }
+
+    function onDocumentMouseDown( event ) {
+
+        event.preventDefault();
+
+        mouse.x = ( event.clientX / renderer.domElement.width ) * 2 - 1;
+        mouse.y = - ( event.clientY / renderer.domElement.height ) * 2 + 1;
+
+        raycaster.setFromCamera( mouse, camera );
+
+        var intersects = raycaster.intersectObjects( objects );
+
+        if ( intersects.length > 0 ) {
+
+            intersects[ 0 ].object.material.color.setHex( Math.random() * 0xffffff );
+
+            var particle = new THREE.Sprite( particleMaterial );
+            particle.position.copy( intersects[ 0 ].point );
+            particle.scale.x = particle.scale.y = 16;
+            scene.add( particle );
+
+        }
+
+        /*
+        // Parse all the faces
+        for ( var i in intersects ) {
+
+            intersects[ i ].face.material[ 0 ].color.setHex( Math.random() * 0xffffff | 0x80000000 );
+
+        }
+        */
+    }
+
+
+    document.addEventListener( 'mousedown', onDocumentMouseDown, false );
+    document.addEventListener( 'touchstart', onDocumentTouchStart, false );
+
+    //
+
+    window.addEventListener( 'resize', onWindowResize, false );

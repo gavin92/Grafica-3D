@@ -1,0 +1,149 @@
+<html>
+  <head> 
+    <title>My first Three.js app</title>
+    <style> body { margin: 0; } 
+            canvas { width: 100%; height: 100% }
+    </style>
+  </head> 
+  
+  <body> 
+    <script src="lib/three.min.js"></script>
+    <script src="lib/stats.min.js"></script>
+    <script src="lib/Coordinates.js"></script>
+	<script src="lib/OrbitControls.js"></script>
+      
+	<script> 
+		var scene = new THREE.Scene(); 
+        var camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 ); 
+		var renderer = new THREE.WebGLRenderer(); 
+            renderer.setSize( window.innerWidth, window.innerHeight );
+        document.body.appendChild( renderer.domElement );
+        
+        
+        // sole
+        var geometry1 = new THREE.SphereGeometry(4.5,20,20);
+        var material1 = new THREE.MeshBasicMaterial( { wireframe: true,
+                                                     color: 0xff0000 } );
+        var sole = new THREE.Mesh( geometry1, material1 );
+        
+        // terra
+        var geometry2 = new THREE.SphereGeometry(2.0,10,10);
+        var material2 = new THREE.MeshBasicMaterial( { wireframe: true,
+                                                     color: 0x00ff00 } );
+        var terra = new THREE.Mesh( geometry2, material2 );
+        
+        // luna
+        var geometry3 = new THREE.SphereGeometry(1,8,8);
+        var material3 = new THREE.MeshBasicMaterial( { wireframe: true,
+                                                     color: 0xaaaa00 } );
+        var luna = new THREE.Mesh( geometry3, material3 );
+        
+        
+        // raggruppamenti e aggiunte alla scena
+        var giraLuna = new THREE.Object3D();
+            giraLuna.add( luna );
+        var sistTerraLuna = new THREE.Object3D();
+            sistTerraLuna.add( giraLuna );
+            sistTerraLuna.add( terra );
+        
+        var giraSistTerraLuna = new THREE.Object3D();
+            giraSistTerraLuna.add( sistTerraLuna );
+        var sistSoleTerra = new THREE.Object3D();
+            sistSoleTerra.add( giraSistTerraLuna );
+            sistSoleTerra.add( sole );
+        
+        // trasformazioni
+        luna.position.x = 4;
+        sistTerraLuna.position.x = 20;
+        
+//        luna.position.set(10, 0, 10);
+        
+        
+        terra.rotation.z = 25 * Math.PI / 180;
+        
+        
+        var theta = 25 * Math.PI / 180.0;
+        var axis = new THREE.Vector3(Math.sin(theta),Math.cos(theta),0); // theta = 25 
+        terra.matrixAutoUpdate = false;
+        
+        
+        
+        
+        
+        
+        
+        
+        scene.add( sistSoleTerra );
+        camera.position.z = 25;
+		
+ /*		var render = function () { 
+			requestAnimationFrame( render );
+           // sole.rotation.z += 0.01;
+			renderer.render(scene, camera);
+            
+            // rotazioni
+            luna.rotation.y += 0.01;
+            
+            // terra.rotation.y += 0.01;
+            
+            theta += 0.01;
+            terra.matrix.makeRotationAxis( axis, theta );
+            
+            
+            giraLuna.rotation.y += 0.01;
+            
+		}; 
+		render();
+        */
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+       
+        stats = new Stats();
+        stats.domElement.style.position = 'absolute';
+        stats.domElement.style.top = '0px';
+        document.body.appendChild( stats.domElement );
+
+//        camera.lookAt( new THREE.Vector3(0,0,0));
+        Coordinates.drawAllAxes();
+
+        controls = new THREE.OrbitControls( camera );
+        controls.addEventListener( 'change', render );
+
+        function animate() {
+            requestAnimationFrame( animate );
+            controls.update();
+        
+        }
+
+        function render() {
+            stats.update();
+            renderer.render(scene, camera);
+            
+            // rotazioni
+            luna.rotation.y += 0.01;
+            
+            // terra.rotation.y += 0.01;
+            
+            theta += 0.01;
+            terra.matrix.makeRotationAxis( axis, theta );
+            
+            
+            giraLuna.rotation.y += 0.01;
+            giraSistTerraLuna.rotation.y += 0.01;
+            
+        }
+        animate();
+
+        
+	</script> 
+  </body>
+</html>
